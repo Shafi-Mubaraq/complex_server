@@ -1,17 +1,21 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const cors = require('cors');
+const connectDB = require('./config/db');
+
+dotenv.config({quiet: true});
+
 const app = express();
-const PORT = 5000;
-
-app.use(cors());
 app.use(express.json());
+connectDB();
 
-mongoose.connect('mongodb://localhost:27017/complex');
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
+}));
 
-
-const db = mongoose.connection;
-db.on('error', console.error);
-db.once('open', () => console.log('Connected to MongoDB'));
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
