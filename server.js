@@ -1,46 +1,45 @@
-// const express = require('express');
-// const dotenv = require('dotenv');
-// const cors = require('cors');
-// const connectDB = require('./config/db');
-
-
-// dotenv.config({quiet: true});
+// const express = require("express");
+// const cors = require("cors");
+// const connectDB = require("./config/db");
+// require("dotenv").config();
 
 // const app = express();
-// app.use(express.json());
-// connectDB();
 
+// // Middlewares
+// app.use(express.json());
 // app.use(cors({
-//     origin: process.env.FRONTEND_URL,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//     credentials: true
+//     origin: process.env.CORS_ORIGIN
 // }));
 
-// const PORT = process.env.PORT || 10000;
-// app.listen(PORT, () => {
-//     console.log(`Server running on port ${PORT}`);
+// // Routes
+// app.use("/api/auth", require("./routes/authRoutes"));
+
+// // Start
+// connectDB();
+// app.listen(process.env.PORT, () => {
+//     console.log(`Server running on ${process.env.PORT}`);
 // });
 
 
+
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
-
-dotenv.config({ quiet: true });
+require("dotenv").config();
+const AdminRoute=require("./routes/authRoutes");
 
 const app = express();
-app.use(express.json());
 
+app.use(express.json());
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: process.env.CORS_ORIGIN,
     credentials: true
 }));
 
+app.use("/api/auth", AdminRoute);
+
 connectDB();
 
-app.use("/api/auth", require("./routes/authRoutes"));
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server Running on PORT ${PORT}`));
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on ${process.env.PORT}`);
+});

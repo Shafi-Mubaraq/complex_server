@@ -1,79 +1,119 @@
+
+
+
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const router = express.Router();
 
-// -------------------------------
-// SIGN UP (CREATE ACCOUNT)
-// -------------------------------
+// ------------------------------------
+// SIGNUP
+// ------------------------------------
+// router.post("/signup", async (req, res) => {
+//     try {
+//         const { fullName, email, password, aadhar, mobile, additionalNumber, city, state } = req.body;
+
+//         // Check mobile exists
+//         const exist = await User.findOne({ mobile });
+//         if (exist) {
+//             return res.status(409).json({ message: "Mobile number already registered" });
+//         }
+
+//         // Hash password
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         const user = await User.create({
+//             fullName,
+//             email,
+//             password: hashedPassword,
+//             aadhar,
+//             mobile,
+//             additionalNumber,
+//             city,
+//             state
+//         });
+
+//         res.status(201).json({
+//             message: "Signup successful",
+//             userId: user._id
+//         });
+
+//     } catch (err) {
+//         res.status(500).json({ message: "Signup error", error: err.message });
+//     }
+// });
+
+
+
+// CREATE USER
 router.post("/signup", async (req, res) => {
     try {
-        const {
-            fullName,
-            email,
-            password,
-            aadhar,
-            mobile,
-            additionalNumber,
-            city,
-            state
-        } = req.body;
-        console.log(req.body)
-        // Check if email exists
-        const exist = await User.findOne({ email });
-        if (exist) return res.status(400).json({ message: "Email already registered" });
+        const exist = await User.findOne({ mobile: req.body.mobile });
 
-        // Create new user
-        const user = await User.create({
-            fullName,
-            email,
-            password,
-            aadhar,
-            mobile,
-            additionalNumber,
-            city,
-            state
-        });
+        if (exist) return res.status(409).json({ message: "Mobile already exists" });
 
-        res.status(201).json({
-            message: "Account created successfully",
-            user: {
-                id: user._id,
-                fullName: user.fullName,
-                email: user.email
-            }
-        });
+        const user = await User.create(req.body);
+        res.status(201).json({ message: "User created", user });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: "Signup error", error: err.message });
     }
 });
 
-// -------------------------------
-// SIGN IN (LOGIN)
-// -------------------------------
-router.post("/signin", async (req, res) => {
+// GET ALL USERS
+router.get("/all-users", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const users = await User.find().sort({ createdAt: -1 });
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: "Fetch error" });
+    }
+});
 
-        // Check email
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: "Invalid email" });
+// UPDATE USER
+router.put("/edit/:id", async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json({ message: "Updated", user });
+    } catch (err) {
+        res.status(500).json({ message: "Update error" });
+    }
+});
 
-        // Check password
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.status(400).json({ message: "Invalid password" });
+// DELETE USER
+router.delete("/delete/:id", async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: "Deleted" });
+    } catch (err) {
+        res.status(500).json({ message: "Delete error" });
+    }
+});
+// ------------------------------------
+// SIGNIN
+// ------------------------------------
+router.post("/signin", async (req, res) => {
+    // console.log("HELLO")
+    // console.log(req.body)
+    try {
+        const { mobile, password } = req.body;
+        // console.log(mobile, password)
+        const user = await User.findOne({ mobile });
+        if (!user)
+            return res.status(404).json({ message: "User Not Found" });
+        if (user.password !== password) {
+            return res.status(400).json({ message: "Invalid password" });
+        }
+
 
         res.status(200).json({
-            message: "Login successful",
-            user: {
-                id: user._id,
-                fullName: user.fullName,
-                email: user.email
-            }
+            message: "Login success"
+            // userId: user._id
         });
+
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: "Signin error", error: err.message });
     }
 });
 
