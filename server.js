@@ -2,7 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
-require("dotenv").config({ queit: true, debug: false });
+// require("dotenv").config({ queit: true, debug: false });
+require("dotenv").config();
+
 
 const AdminRoute = require("./routes/authRoutes");
 
@@ -21,3 +23,14 @@ connectDB();
 app.listen(process.env.PORT, () => {
     console.log(`Server running on ${process.env.PORT}`);
 });
+
+
+
+
+
+
+
+
+
+
+

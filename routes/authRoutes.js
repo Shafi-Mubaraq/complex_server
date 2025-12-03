@@ -1,7 +1,7 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+
 const router = express.Router();
 
 // -------------------------------------------------------------------------------------------------------------------------------------------
@@ -67,27 +67,80 @@ router.delete("/delete/:id", async (req, res) => {
 
 // SIGNIN
 
+// router.post("/signin", async (req, res) => {
+
+//     try {
+
+//         const { mobile, password } = req.body;
+//         console.log(req.body,"first");
+
+//         const user = await User.findOne({ mobile });
+//         console.log(req.body,"second")
+//         if (!user) {
+//             return res.status(404).json({ message: "User Not Found" });
+//         }
+//         console.log(req.body,"third")
+
+//         if (user.password !== password) {
+//             return res.status(400).json({ message: "Invalid password" });
+//         }
+//         console.log(req.body,"4")
+
+//         res.status(200).json({ message: "Login success" });
+//     } catch (err) {
+//         res.status(500).json({ message: "Signin error", error: err.message });
+//     }
+//     console.log(req.body,"5")
+// });
+
 router.post("/signin", async (req, res) => {
-
     try {
-
         const { mobile, password } = req.body;
+        console.log("ffjj")
+
+        if (!mobile || !password) {
+            return res.status(400).json({ message: "Mobile and password required" });
+        }
+         console.log("677878")
 
         const user = await User.findOne({ mobile });
-        if (!user) {
-            return res.status(404).json({ message: "User Not Found" });
-        }
+         console.log("ffjj")
 
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+         console.log("798789")
+
+        // Plain text password check (as requested)
         if (user.password !== password) {
             return res.status(400).json({ message: "Invalid password" });
         }
 
-        res.status(200).json({ message: "Login success" });
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: user._id, mobile: user.mobile, role: user.role },
+            process.env.JWT_SECRET || "mySecretKey",
+            { expiresIn: "1d" }
+        );
+
+        // Send required data to frontend
+        res.status(200).json({
+            message: "Login success",
+            token: token,
+            fullName: user.fullName,
+            mobile: user.mobile,
+            role: user.role
+        });
+
     } catch (err) {
+        console.error("Signin Error:", err);
         res.status(500).json({ message: "Signin error", error: err.message });
     }
 });
 
-// -------------------------------------------------------------------------------------------------------------------------------------------
-
 module.exports = router;
+
+
+
+
+
