@@ -1,15 +1,35 @@
+// const mongoose = require("mongoose");
+
+// const userSchema = new mongoose.Schema({
+//     fullName: { type: String, required: true },
+//     email: { type: String, required: true, unique: true },
+//     password: { type: String, required: true },
+//     aadhar: { type: String, required: true },
+//     mobile: { type: String, required: true, unique: true },
+//     additionalNumber: { type: String, required: true },
+//     city: { type: String, required: true },
+//     state: { type: String, required: true },
+//     role:{type :Number,required: true},
+// }, { timestamps: true });
+
+// module.exports = mongoose.model("User", userSchema);
+
+
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true }, // PLAIN TEXT
     aadhar: { type: String, required: true },
     mobile: { type: String, required: true, unique: true },
-    additionalNumber: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    role:{type :Number,required: true},
-}, { timestamps: true });
+    additionalNumber: { type: String },
+    city: { type: String },
+    state: { type: String },
+    role: { type: Number, default: 1 },
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("User", userSchema);

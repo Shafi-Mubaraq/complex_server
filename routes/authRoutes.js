@@ -97,6 +97,7 @@ router.post("/signin", async (req, res) => {
     try {
         const { mobile, password } = req.body;
         console.log("ffjj")
+        console.log(typeof mobile,typeof password)
 
         if (!mobile || !password) {
             return res.status(400).json({ message: "Mobile and password required" });
@@ -139,6 +140,8 @@ router.post("/signin", async (req, res) => {
 });
 
 module.exports = router;
+
+
 
 
 
