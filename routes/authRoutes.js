@@ -140,11 +140,81 @@ router.post("/signin", async (req, res) => {
     }
 });
 
+// module.exports = router;
+
+
+// ---------------------------------------------------------------------------
+// GET ALL USERS
+router.get("/all-users", async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: "Fetch error", error: err.message });
+  }
+});
+
+// UPDATE USER
+router.put("/edit/:id", async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ message: "Updated", user });
+  } catch (err) {
+    res.status(500).json({ message: "Update error", error: err.message });
+  }
+});
+
+// DELETE USER
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Delete error", error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// PROPERTY ROUTES
+
+// CREATE PROPERTY
+router.post("/property/create", async (req, res) => {
+  try {
+    const property = await Property.create(req.body);
+    res.status(201).json({ message: "Property created", property });
+  } catch (err) {
+    res.status(500).json({ message: "Property creation failed", error: err.message });
+  }
+});
+
+// GET ALL PROPERTIES
+router.get("/all-properties", async (req, res) => {
+  try {
+    const properties = await Property.find().sort({ createdAt: -1 });
+    res.status(200).json(properties);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch properties", error: err.message });
+  }
+});
+
+// UPDATE PROPERTY
+router.put("/property/update/:id", async (req, res) => {
+  try {
+    const updatedProperty = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json({ message: "Property updated successfully", property: updatedProperty });
+  } catch (err) {
+    res.status(500).json({ message: "Property update failed", error: err.message });
+  }
+});
+
+// DELETE PROPERTY
+router.delete("/property/delete/:id", async (req, res) => {
+  try {
+    await Property.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Property deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Property delete failed", error: err.message });
+  }
+});
+
 module.exports = router;
-
-
-
-
-
-
-
