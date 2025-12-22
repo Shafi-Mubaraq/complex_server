@@ -28,6 +28,14 @@
                 type: String,
                 required: true
             },
+            floor:{
+                type:String,
+                required:true
+            },
+            doorNumber:{
+                type:String,
+                required:true
+            },
             amenities: [
                 {
                     type: String

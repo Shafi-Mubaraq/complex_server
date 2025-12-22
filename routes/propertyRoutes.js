@@ -23,7 +23,7 @@ router.post("/create", async (req, res) => {
 router.put("/update/:id", async (req, res) => {
 
     try {
-        const updatedProperty = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const updatedProperty = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true,  runValidators: true, });
         res.status(200).json({ message: "Property updated successfully", property: updatedProperty });
     } catch (err) {
         res.status(500).json({ message: "Property update failed", error: err.message });

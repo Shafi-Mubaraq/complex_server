@@ -36,7 +36,7 @@ app.use("/api/property", require("./routes/propertyRoutes"));
 
 //  ------------------------------------------------------------------------------------------------------------------------------------------
 
-app.get("/house/fetchData", async (req, res) => {
+app.get("/api/house/fetchData", async (req, res) => {
 
     try {
         const houses = await Property.find({ propertyType: "house" });
@@ -51,7 +51,7 @@ app.get("/house/fetchData", async (req, res) => {
 
 //  ------------------------------------------------------------------------------------------------------------------------------------------
 
-app.get("/shop/fetchData", async (req, res) => {
+app.get("/api/shop/fetchData", async (req, res) => {
 
     try {
         const shops = await Property.find({ propertyType: "shop" });
