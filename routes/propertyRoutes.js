@@ -4,71 +4,64 @@ const upload = require("../middleware/upload");
 const router = express.Router();
 
 /* ================= CREATE PROPERTY ================= */
-router.post(
-    "/create",
-    upload.array("images", 10),
-    async (req, res) => {
-        try {
-            const imagePaths = req.files.map(
-                (file) => `/uploads/properties/${file.filename}`
-            );
 
-            const property = await Property.create({
-                ...req.body,
-                amenities: req.body.amenities?.split(","),
-                images: imagePaths,
-            });
+router.post("/create", upload.array("images", 10), async (req, res) => {
 
-            res.status(201).json({ message: "Property created", property });
-        } catch (err) {
-            res.status(500).json({ message: "Creation failed", error: err.message });
-        }
+    try {
+
+        const imagePaths = req.files.map(
+            (file) => `/uploads/properties/${file.filename}`
+        );
+
+        const property = await Property.create({
+            ...req.body,
+            amenities: req.body.amenities?.split(","),
+            images: imagePaths,
+        });
+
+        res.status(201).json({ message: "Property created", property });
+    } catch (err) {
+        res.status(500).json({ message: "Creation failed", error: err.message });
     }
-);
+});
 
 /* ================= UPDATE PROPERTY ================= */
-router.put(
-    "/update/:id",
-    upload.array("images", 10),
-    async (req, res) => {
-        try {
-            const property = await Property.findById(req.params.id);
 
-            // old images
-            let images = property.images || [];
+router.put("/update/:id", upload.array("images", 10), async (req, res) => {
 
-            // new images
-            if (req.files && req.files.length > 0) {
-                const newImages = req.files.map(
-                    (file) => `/uploads/properties/${file.filename}`
-                );
+    try {
 
-                // 🔴 MERGE OLD + NEW
-                images = [...images, ...newImages];
-            }
+        const property = await Property.findById(req.params.id);
 
-            const updatedProperty = await Property.findByIdAndUpdate(
-                req.params.id,
-                {
-                    ...req.body,
-                    amenities: req.body.amenities?.split(","),
-                    images,
-                },
-                { new: true }
+        let images = property.images || [];
+
+        if (req.files && req.files.length > 0) {
+            const newImages = req.files.map(
+                (file) => `/uploads/properties/${file.filename}`
             );
-
-            res.json({
-                message: "Property updated successfully",
-                property: updatedProperty,
-            });
-        } catch (err) {
-            res.status(500).json({ error: err.message });
+            images = [...images, ...newImages];
         }
+
+        const updatedProperty = await Property.findByIdAndUpdate(
+            req.params.id,
+            { ...req.body, amenities: req.body.amenities?.split(","), images },
+            { new: true }
+        );
+
+        res.json({
+            message: "Property updated successfully",
+            property: updatedProperty,
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
+}
 );
 
 /* ================= DELETE PROPERTY ================= */
+
 router.delete("/delete/:id", async (req, res) => {
+
     try {
         await Property.findByIdAndDelete(req.params.id);
         res.json({ message: "Deleted successfully" });

@@ -2,7 +2,6 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Property = require("../models/Property");
-
 const router = express.Router();
 
 // -------------------------------------------------------------------------------------------------------------------------------------------
@@ -72,13 +71,10 @@ router.post("/signin", async (req, res) => {
 
 // -------------------------------------------------------------------------------------------------------------------------------------------
 
-
-// ---------------------------------------------------------------------------
-// PROPERTY ROUTES
-
-
 // GET ALL PROPERTIES
+
 router.get("/all-properties", async (req, res) => {
+
     try {
         const properties = await Property.find().sort({ createdAt: -1 });
         res.status(200).json(properties);
@@ -87,8 +83,6 @@ router.get("/all-properties", async (req, res) => {
     }
 });
 
-
-
-
+// -------------------------------------------------------------------------------------------------------------------------------------------
 
 module.exports = router;
