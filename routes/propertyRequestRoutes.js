@@ -8,23 +8,39 @@ const Property = require("../models/Property");
 ========================================================= */
 
 router.post("/create", async (req, res) => {
+  try {
+    const { property, propertyType } = req.body;
 
-    try {
+    // 1️⃣ Check property exists & availability
+    const propertyData = await Property.findOne({
+      title: property,
+      isAvailable: true,
+    });
 
-        const request = new PropertyRequest(req.body);
-        await request.save();
-
-        res.status(201).json({
-            success: true,
-            message: "Property request stored successfully",
-        });
-    } catch (error) {
-        console.error("PropertyRequest Create Error:", error);
-        res.status(400).json({
-            success: false,
-            message: error.message,
-        });
+    if (!propertyData) {
+      return res.status(400).json({
+        success: false,
+        message: "Property not available",
+      });
     }
+
+    // 2️⃣ Create request
+    const request = new PropertyRequest(req.body);
+    await request.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Property request stored successfully",
+      data: request,
+    });
+  } catch (error) {
+    console.error("PropertyRequest Create Error:", error);
+
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
 });
 
 /* =========================================================
@@ -32,13 +48,19 @@ router.post("/create", async (req, res) => {
 ========================================================= */
 
 router.get("/all", async (req, res) => {
+  try {
+    const requests = await PropertyRequest.find()
+      .sort({ createdAt: -1 });
 
-    try {
-        const requests = await PropertyRequest.find().sort({ createdAt: -1 });
-        res.json(requests);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+    res.json({
+      success: true,
+      count: requests.length,
+      data: requests,
+    });
+  } catch (err) {
+    console.error("Get Requests Error:", err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 /* =========================================================
@@ -46,44 +68,65 @@ router.get("/all", async (req, res) => {
 ========================================================= */
 
 router.put("/accept/:id", async (req, res) => {
+  try {
+    const request = await PropertyRequest.findById(req.params.id);
 
-    try {
-
-        const request = await PropertyRequest.findById(req.params.id);
-        if (!request) {
-            return res.status(404).json({ message: "Request not found" });
-        }
-
-        request.status = "accepted";
-        request.adminResponse = "Your booking has been approved";
-        await request.save();
-
-        await PropertyRequest.updateMany(
-            {
-                _id: { $ne: request._id },
-                property: request.property,
-                propertyType: request.propertyType,
-                status: "pending",
-            },
-            {
-                status: "rejected",
-                adminResponse: "Property booked by another user",
-            }
-        );
-
-        await Property.findOneAndUpdate(
-            { title: request.property },
-            { isAvailable: false }
-        );
-
-        res.json({
-            success: true,
-            message: "Request accepted successfully",
-        });
-    } catch (err) {
-        console.error("Accept Request Error:", err);
-        res.status(500).json({ message: err.message });
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
     }
+
+    // Prevent double accept
+    if (request.status !== "pending") {
+      return res.status(400).json({
+        message: `Request already ${request.status}`,
+      });
+    }
+
+    // Check property availability again
+    const propertyData = await Property.findOne({
+      title: request.property,
+      isAvailable: true,
+    });
+
+    if (!propertyData) {
+      return res.status(400).json({
+        message: "Property already booked",
+      });
+    }
+
+    // Accept request
+    request.status = "accepted";
+    request.adminResponse = "Your booking has been approved";
+    await request.save();
+
+    // Reject all others for same property
+    await PropertyRequest.updateMany(
+      {
+        _id: { $ne: request._id },
+        property: request.property,
+        propertyType: request.propertyType,
+        status: "pending",
+      },
+      {
+        status: "rejected",
+        adminResponse: "Property booked by another user",
+      }
+    );
+
+    // Mark property unavailable
+    await Property.findByIdAndUpdate(propertyData._id, {
+      isAvailable: false,
+    });
+
+    res.json({
+      success: true,
+      message: "Request accepted successfully",
+      data: request,
+    });
+  } catch (err) {
+    console.error("Accept Request Error:", err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 /* =========================================================
@@ -91,19 +134,31 @@ router.put("/accept/:id", async (req, res) => {
 ========================================================= */
 
 router.put("/reject/:id", async (req, res) => {
+  try {
+    const request = await PropertyRequest.findById(req.params.id);
 
-    try {
-
-        await PropertyRequest.findByIdAndUpdate(req.params.id, {
-            status: "rejected",
-            adminResponse: "Rejected by admin",
-        });
-
-        res.json({ success: true });
-    } catch (err) {
-        console.error("Reject Request Error:", err);
-        res.status(500).json({ message: err.message });
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
     }
+
+    if (request.status !== "pending") {
+      return res.status(400).json({
+        message: `Request already ${request.status}`,
+      });
+    }
+
+    request.status = "rejected";
+    request.adminResponse = "Rejected by admin";
+    await request.save();
+
+    res.json({
+      success: true,
+      message: "Request rejected successfully",
+    });
+  } catch (err) {
+    console.error("Reject Request Error:", err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;
