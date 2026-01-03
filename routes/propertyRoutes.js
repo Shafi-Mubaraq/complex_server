@@ -3,7 +3,9 @@ const Property = require("../models/Property");
 const upload = require("../middleware/upload");
 const router = express.Router();
 
-/* ================= CREATE PROPERTY ================= */
+// -------------------------------------------------------------------------------------------------------------------------------------------
+
+// CREATE PROPERTY
 
 router.post("/create", upload.array("images", 10), async (req, res) => {
 
@@ -25,7 +27,9 @@ router.post("/create", upload.array("images", 10), async (req, res) => {
     }
 });
 
-/* ================= UPDATE PROPERTY ================= */
+// -------------------------------------------------------------------------------------------------------------------------------------------
+
+// UPDATE PROPERTY 
 
 router.put("/update/:id", upload.array("images", 10), async (req, res) => {
 
@@ -55,10 +59,11 @@ router.put("/update/:id", upload.array("images", 10), async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-}
-);
+});
 
-/* ================= DELETE PROPERTY ================= */
+// -------------------------------------------------------------------------------------------------------------------------------------------
+
+// DELETE PROPERTY 
 
 router.delete("/delete/:id", async (req, res) => {
 
@@ -69,5 +74,7 @@ router.delete("/delete/:id", async (req, res) => {
         res.status(500).json({ message: "Delete failed", error: err.message });
     }
 });
+
+// -------------------------------------------------------------------------------------------------------------------------------------------
 
 module.exports = router;
