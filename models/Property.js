@@ -2,17 +2,34 @@ const mongoose = require("mongoose");
 
 const propertySchema = new mongoose.Schema({
     propertyType: { type: String, enum: ["house", "shop"], required: true },
+
     title: { type: String, required: true },
-    description: { type: String },
+    description: String,
+
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+
+    currentTenant: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null
+    },
+
     rent: { type: Number, required: true },
-    deposit: { type: Number },
-    area: { type: Number },
+    deposit: Number,
+    area: Number,
+
     location: { type: String, required: true },
-    floor: { type: String, required: true },
-    doorNumber: { type: String, required: true },
-    amenities: [{ type: String }],
+    floor: String,
+    doorNumber: String,
+
+    amenities: [String],
     images: { type: [String], default: [] },
-    isAvailable: { type: Boolean, default: true },
+
+    isAvailable: { type: Boolean, default: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Property", propertySchema);

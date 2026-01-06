@@ -5,13 +5,11 @@ const Property = require("../models/Property");
 const router = express.Router();
 
 // -------------------------------------------------------------------------------------------------------------------------------------------
-
 // REGISTER USER
+// -------------------------------------------------------------------------------------------------------------------------------------------
 
 router.post("/signup", async (req, res) => {
-
     try {
-
         const exist = await User.findOne({ mobile: req.body.mobile });
 
         if (exist) {
@@ -22,19 +20,17 @@ router.post("/signup", async (req, res) => {
         res.status(201).json({ message: "User created", user });
 
     } catch (err) {
-        console.error('Error in creating user : ', error)
+        console.error("Error in creating user:", err);
         res.status(500).json({ message: "Signup error", error: err.message });
     }
 });
 
-// -----------------------------------------------------------------------------------------------------------------------------------------
-
+// -------------------------------------------------------------------------------------------------------------------------------------------
 // LOGIN USER
+// -------------------------------------------------------------------------------------------------------------------------------------------
 
 router.post("/signin", async (req, res) => {
-
     try {
-
         const { mobile, password } = req.body;
 
         if (!mobile || !password) {
@@ -59,8 +55,10 @@ router.post("/signin", async (req, res) => {
 
         res.status(200).json({
             message: "Login success",
-            token: token, fullName: user.fullName,
-            mobile: user.mobile, role: user.role
+            token,
+            fullName: user.fullName,
+            mobile: user.mobile,
+            role: user.role
         });
 
     } catch (err) {
@@ -70,11 +68,10 @@ router.post("/signin", async (req, res) => {
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------------
-
 // GET ALL PROPERTIES
+// -------------------------------------------------------------------------------------------------------------------------------------------
 
 router.get("/all-properties", async (req, res) => {
-
     try {
         const properties = await Property.find().sort({ createdAt: -1 });
         res.status(200).json(properties);
