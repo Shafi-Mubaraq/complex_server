@@ -5,39 +5,64 @@ const Property = require("../models/Property");
 
 // ---------------------------------------------------------------------------
 // CREATE PROPERTY REQUEST (USER)
+// router.post("/create", async (req, res) => {
+//     try {
+//         const { property, propertyType } = req.body;
+
+//         // 1️⃣ Check property exists & availability
+//         const propertyData = await Property.findOne({
+//             title: property,
+//             isAvailable: true,
+//         });
+
+//         if (!propertyData) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Property not available",
+//             });
+//         }
+
+//         // 2️⃣ Create request
+//         const request = await PropertyRequest.create(req.body);
+
+//         res.status(201).json({
+//             success: true,
+//             message: "Property request stored successfully",
+//             data: request,
+//         });
+//     } catch (error) {
+//         console.error("PropertyRequest Create Error:", error);
+//         res.status(400).json({
+//             success: false,
+//             message: error.message,
+//         });
+//     }
+// });
+
+
+// routes/propertyRequestRoutes.js
 router.post("/create", async (req, res) => {
-    try {
-        const { property, propertyType } = req.body;
+  try {
+    const { property } = req.body;
 
-        // 1️⃣ Check property exists & availability
-        const propertyData = await Property.findOne({
-            title: property,
-            isAvailable: true,
-        });
-
-        if (!propertyData) {
-            return res.status(400).json({
-                success: false,
-                message: "Property not available",
-            });
-        }
-
-        // 2️⃣ Create request
-        const request = await PropertyRequest.create(req.body);
-
-        res.status(201).json({
-            success: true,
-            message: "Property request stored successfully",
-            data: request,
-        });
-    } catch (error) {
-        console.error("PropertyRequest Create Error:", error);
-        res.status(400).json({
-            success: false,
-            message: error.message,
-        });
+    const propertyData = await Property.findById(property);
+    if (!propertyData || !propertyData.isAvailable) {
+      return res.status(400).json({ message: "Property not available" });
     }
+
+    const request = await PropertyRequest.create(req.body);
+
+    res.status(201).json({
+      success: true,
+      message: "Booking request submitted",
+      data: request
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
+
 
 // ---------------------------------------------------------------------------
 // GET ALL REQUESTS (ADMIN)
