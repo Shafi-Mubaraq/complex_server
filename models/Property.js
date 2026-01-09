@@ -22,7 +22,7 @@ const propertySchema = new mongoose.Schema({
     deposit: Number,
     area: Number,
 
-    location: { type: String, required: true },
+    location: { type: String,},
     floor: String,
     doorNumber: String,
 

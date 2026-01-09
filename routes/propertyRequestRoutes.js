@@ -7,7 +7,6 @@ const Property = require("../models/Property");
 // CREATE PROPERTY REQUEST (USER)
 
 
-// routes/propertyRequestRoutes.js
 router.post("/create", async (req, res) => {
   try {
     const { property } = req.body;
