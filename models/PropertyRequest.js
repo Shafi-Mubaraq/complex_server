@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const propertyRequestSchema = new mongoose.Schema({
+
     property: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Property",
