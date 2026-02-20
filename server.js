@@ -16,7 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(
     cors({
-        origin: process.env.CORS_ORIGIN,
+        origin: "https://complex-client.vercel.app",
         credentials: true,
     })
 );
@@ -31,7 +31,8 @@ app.use("/uploads", express.static("uploads"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(process.env.MONGO_URI);
+    // console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 //  ------------------------------------------------------------------------------------------------------------------------------------------
