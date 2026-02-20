@@ -4,38 +4,96 @@ const PropertyRequest = require("../models/PropertyRequest");
 const Property = require("../models/Property");
 
 // ---------------------------------------------------------------------------
+
 // CREATE PROPERTY REQUEST (USER)
 
-
 router.post("/create", async (req, res) => {
-  try {
-    const { property } = req.body;
 
-    const propertyData = await Property.findById(property);
-    if (!propertyData || !propertyData.isAvailable) {
-      return res.status(400).json({ message: "Property not available" });
+    try {
+        
+        const { property, applicantUser, propertyType, houseDetails, shopDetails, message } = req.body;
+
+        // Validate property exists and is available
+        const propertyData = await Property.findById(property);
+        if (!propertyData) {
+            return res.status(404).json({ message: "Property not found" });
+        }
+
+        if (!propertyData.isAvailable) {
+            return res.status(400).json({ message: "Property is not available for rent" });
+        }
+
+        // Validate user exists
+        if (!mongoose.Types.ObjectId.isValid(applicantUser)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        const user = await User.findById(applicantUser);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Check if user already has a pending request for this property
+        const existingRequest = await PropertyRequest.findOne({
+            property,
+            applicantUser,
+            status: "pending"
+        });
+
+        if (existingRequest) {
+            return res.status(400).json({
+                message: "You already have a pending request for this property"
+            });
+        }
+
+        // Create the request
+        const requestData = {
+            property,
+            applicantUser,
+            propertyType,
+            message,
+            status: "pending"
+        };
+
+        // Add type-specific details
+        if (propertyType === "house" && houseDetails) {
+            requestData.houseDetails = houseDetails;
+        } else if (propertyType === "shop" && shopDetails) {
+            requestData.shopDetails = shopDetails;
+        }
+
+        const request = await PropertyRequest.create(requestData);
+
+        // Populate the response with user and property details
+        const populatedRequest = await PropertyRequest.findById(request._id)
+            .populate('applicantUser', 'fullName email mobile aadhar')
+            .populate('property', 'title location rent deposit');
+
+        res.status(201).json({
+            success: true,
+            message: "Booking request submitted successfully",
+            data: populatedRequest
+        });
+
+    } catch (err) {
+        console.error("Property request error:", err);
+        res.status(500).json({
+            message: "Failed to submit request",
+            error: err.message
+        });
     }
-
-    const request = await PropertyRequest.create(req.body);
-
-    res.status(201).json({
-      success: true,
-      message: "Booking request submitted",
-      data: request
-    });
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
 });
 
-
 // ---------------------------------------------------------------------------
+
 // GET ALL REQUESTS (ADMIN)
+
 router.get("/all", async (req, res) => {
+
     try {
+
         const requests = await PropertyRequest.find()
-            .populate("property applicant", "title fullName phoneNumber") // Populate related data
+            .populate("property applicant", "title fullName phoneNumber")
             .sort({ createdAt: -1 });
 
         res.json({
@@ -50,9 +108,13 @@ router.get("/all", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+
 // ACCEPT REQUEST (ONLY ONE USER)
+
 router.put("/accept/:id", async (req, res) => {
+
     try {
+
         const request = await PropertyRequest.findById(req.params.id);
         if (!request) return res.status(404).json({ message: "Request not found" });
         if (request.status !== "pending") return res.status(400).json({ message: `Request already ${request.status}` });
@@ -86,13 +148,16 @@ router.put("/accept/:id", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+
 // REJECT REQUEST (ADMIN MANUAL)
+
 router.put("/reject/:id", async (req, res) => {
+
     try {
+
         const request = await PropertyRequest.findById(req.params.id);
         if (!request) return res.status(404).json({ message: "Request not found" });
         if (request.status !== "pending") return res.status(400).json({ message: `Request already ${request.status}` });
-
         request.status = "rejected";
         request.adminResponse = "Rejected by admin";
         await request.save();
@@ -103,5 +168,7 @@ router.put("/reject/:id", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+// ---------------------------------------------------------------------------
 
 module.exports = router;

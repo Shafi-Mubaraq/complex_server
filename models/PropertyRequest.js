@@ -7,11 +7,10 @@ const propertyRequestSchema = new mongoose.Schema({
         ref: "Property",
         required: true
     },
-    applicant: {
-        fullName: String,
-        phoneNumber: String,
-        address: String,
-        aadharNumber: String
+    applicantUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
     propertyType: {
         type: String,
