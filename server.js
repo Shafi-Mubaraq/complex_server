@@ -16,7 +16,9 @@ const app = express();
 app.use(express.json());
 app.use(
     cors({
-        origin: "https://complex-client.vercel.app",
+        // origin: "https://complex-client.vercel.app",
+
+        origin: process.env.CORS_ORIGIN,
         credentials: true,
     })
 );
