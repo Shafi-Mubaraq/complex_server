@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const PropertyRequest = require("../models/PropertyRequest");
 const Property = require("../models/Property");
+const User = require("../models/User");
+const mongoose = require("mongoose");
 
 // ---------------------------------------------------------------------------
 
@@ -10,7 +12,7 @@ const Property = require("../models/Property");
 router.post("/create", async (req, res) => {
 
     try {
-        
+
         const { property, applicantUser, propertyType, houseDetails, shopDetails, message } = req.body;
 
         // Validate property exists and is available
@@ -23,12 +25,7 @@ router.post("/create", async (req, res) => {
             return res.status(400).json({ message: "Property is not available for rent" });
         }
 
-        // Validate user exists
-        if (!mongoose.Types.ObjectId.isValid(applicantUser)) {
-            return res.status(400).json({ message: "Invalid user ID" });
-        }
-
-        const user = await User.findById(applicantUser);
+        const user = await User.findOne({ mobile: applicantUser });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -36,9 +33,10 @@ router.post("/create", async (req, res) => {
         // Check if user already has a pending request for this property
         const existingRequest = await PropertyRequest.findOne({
             property,
-            applicantUser,
+            applicantUser: user._id,
             status: "pending"
         });
+
 
         if (existingRequest) {
             return res.status(400).json({
@@ -49,7 +47,7 @@ router.post("/create", async (req, res) => {
         // Create the request
         const requestData = {
             property,
-            applicantUser,
+            applicantUser: user._id,
             propertyType,
             message,
             status: "pending"
@@ -93,7 +91,8 @@ router.get("/all", async (req, res) => {
     try {
 
         const requests = await PropertyRequest.find()
-            .populate("property applicant", "title fullName phoneNumber")
+            .populate("property", "title location rent deposit")
+            .populate("applicantUser", "fullName email mobile aadhar")
             .sort({ createdAt: -1 });
 
         res.json({
