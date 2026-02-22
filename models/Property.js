@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const propertySchema = new mongoose.Schema({
-
     propertyType: { type: String, enum: ["house", "shop"], required: true },
     title: { type: String, required: true },
     description: String,
