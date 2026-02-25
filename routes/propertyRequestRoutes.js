@@ -171,3 +171,41 @@ router.put("/reject/:id", async (req, res) => {
 // ---------------------------------------------------------------------------
 
 module.exports = router;
+
+
+// --------------------------------------------------------------------------------
+
+// Get logged-in user booking requests
+
+router.get("/user/:mobile", async (req, res) => {
+    try {
+        const { mobile } = req.params;
+
+        const user = await User.findOne({ mobile });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        const requests = await PropertyRequest.find({
+            applicantUser: user._id
+        })
+        .populate("property")
+        .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: requests
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+});
