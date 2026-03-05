@@ -423,6 +423,67 @@ router.post("/create-lease/:requestId", async (req, res) => {
 
 
 // ---------------------------------------------------------------------------
+// GET ALL LEASES
+// ---------------------------------------------------------------------------
+
+router.get("/leases", async (req, res) => {
+  try {
+
+    const leases = await Lease.find()
+      .populate("property", "title location")
+      .populate("tenant", "fullName mobile")
+      .populate("owner", "fullName")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: leases
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+// ---------------------------------------------------------------------------
+// GET LOGGED-IN TENANT LEASE
+// ---------------------------------------------------------------------------
+
+router.get("/lease/tenant/:mobile", async (req, res) => {
+    try {
+
+        const user = await User.findOne({ mobile: req.params.mobile });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        const leases = await Lease.find({
+            tenant: user._id,
+            status: "active"
+        })
+        .populate("property", "title location rent")
+        .populate("owner", "fullName mobile");
+
+        res.json({
+            success: true,
+            data: leases
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
+
+// ---------------------------------------------------------------------------
 // REJECT REQUEST
 // ---------------------------------------------------------------------------
 
@@ -478,6 +539,8 @@ router.get("/user/:mobile", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+
 
 
 module.exports = router;
