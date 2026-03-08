@@ -42,6 +42,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/userManage", require("./routes/userRoutes"));
 app.use("/api/property", require("./routes/propertyRoutes"));
 app.use("/api/propertyRequest", require("./routes/propertyRequestRoutes"));
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 
 //  ------------------------------------------------------------------------------------------------------------------------------------------
 
