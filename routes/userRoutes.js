@@ -46,4 +46,30 @@ router.delete("/delete/:id", async (req, res) => {
 
 // -------------------------------------------------------------------------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// GET SINGLE USER BY MOBILE
+// ---------------------------------------------------------------------------
+
+router.get("/profile/:mobile", async (req, res) => {
+    try {
+
+        const user = await User.findOne({ mobile: req.params.mobile });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({
+            success: true,
+            data: user
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: "Profile fetch error",
+            error: err.message
+        });
+    }
+});
+
 module.exports = router;
