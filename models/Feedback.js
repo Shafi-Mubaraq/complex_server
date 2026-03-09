@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const complaintSchema = new mongoose.Schema({
+const feedbackSchema = new mongoose.Schema({
     property: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Property",
@@ -16,18 +16,13 @@ const complaintSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    title: {
-        type: String,
+    rating: {
+        type: Number,
+        min: 1,
+        max: 5,
         required: true
     },
-    description: String,
-    status: {
-        type: String,
-        enum: ["open", "in_progress", "resolved", "closed"],
-        default: "open"
-    },
-    response: String,
-    resolvedDate: Date
+    comment: String
 }, { timestamps: true });
 
-module.exports = mongoose.model("Complaint", complaintSchema);
+module.exports = mongoose.model("Feedback", feedbackSchema);
