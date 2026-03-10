@@ -9,6 +9,7 @@ const Property = require("./models/Property");
 const Booking = require("./models/Booking");
 const Complaint = require("./models/Complaint");
 
+
 //  ------------------------------------------------------------------------------------------------------------------------------------------
 
 const app = express();
@@ -44,7 +45,7 @@ app.use("/api/property", require("./routes/propertyRoutes"));
 app.use("/api/propertyRequest", require("./routes/propertyRequestRoutes"));
 app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 app.use("/api/complaints", require("./routes/complaintRoutes"));
-app.use("/api/feedback", require("./routes/feedbackRoutes"));
+app.use("/api/feedback", require("./routes/FeedbackRoutes"));
 
 //  ------------------------------------------------------------------------------------------------------------------------------------------
 
