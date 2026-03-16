@@ -46,7 +46,12 @@ app.use("/api/propertyRequest", require("./routes/propertyRequestRoutes"));
 app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 app.use("/api/complaints", require("./routes/complaintRoutes"));
 app.use("/api/feedback", require("./routes/feedbackRoutes"));
-
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).json({
+        message: "Internal server error"
+    });
+});
 //  ------------------------------------------------------------------------------------------------------------------------------------------
 
 app.get("/api/house/fetchData", async (req, res) => {
