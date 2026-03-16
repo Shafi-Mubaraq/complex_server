@@ -16,6 +16,11 @@ const feedbackSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    complaint: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Complaint",
+        required: true
+    },
     rating: {
         type: Number,
         min: 1,

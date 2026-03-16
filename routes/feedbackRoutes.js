@@ -14,6 +14,7 @@ router.post("/create", async (req, res) => {
     try {
 
         const { complaintId, mobile, rating, comment } = req.body;
+          console.log("Request Data:", req.body);
 
         const tenant = await User.findOne({ mobile });
 
@@ -51,6 +52,7 @@ router.post("/create", async (req, res) => {
             comment
 
         });
+        console.log("Feedback stored:", feedback);
 
         res.json({
             message: "Feedback submitted",
