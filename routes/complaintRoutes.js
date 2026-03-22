@@ -78,6 +78,18 @@ router.get("/tenant/:mobile", async (req, res) => {
             .sort({ createdAt: -1 });
 
         res.status(200).json(complaints);
+        // ADD THIS
+        const result = await Promise.all(
+            complaints.map(async (c) => {
+                const feedback = await Feedback.findOne({ complaint: c._id });
+                return {
+                    ...c.toObject(),
+                    feedback
+                };
+            })
+        );
+
+        res.json(result);
 
     } catch (error) {
 
